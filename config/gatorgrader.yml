@@ -1,0 +1,60 @@
+---
+name: cmpsc-203-spring-2020-practical8
+break: true
+indent: 4
+---
+
+# --> check the source code for various characteristics
+# note that without an "--exact" the check is an "at least"
+termfrequency:
+        compute_tf_aspects.py:
+            ConfirmFileExists
+            CountMultipleLineComments --language Python --count 6
+            CountSingleLineComments --language Python --count 3
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+tests:
+        test_compute_tf_aspects.py:
+            ConfirmFileExists
+            CountMultipleLineComments --language Python --count 3
+            CountSingleLineComments --language Python --count 0
+            MatchFileFragment --fragment "test_" --count 2
+            MatchFileFragment --fragment "assert" --count 2
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+# --> check that auxiliary files exist in the correct directory
+tests:
+        conftest.py:
+            ConfirmFileExists
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+tests:
+        __init__.py:
+            ConfirmFileExists
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+scripts:
+        cover.sh:
+            ConfirmFileExists
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+scripts:
+        lint.sh:
+            ConfirmFileExists
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+scripts:
+        test.sh:
+            ConfirmFileExists
+            MatchFileFragment --fragment "TODO" --count 0 --exact
+
+# --> check the technical writing
+writing/reflection.md:
+    ConfirmFileExists
+    CountFileWords --count 500
+    CountMarkdownTags --tag "heading" --count 6 --exact
+    MatchFileFragment --fragment "Add Your Name Here" --count 0 --exact
+    MatchFileFragment --fragment "TODO" --count 0 --exact
+
+# --> check the number of commits beyond a threshold
+CountCommits --count 5
