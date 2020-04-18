@@ -1,4 +1,4 @@
-# cs203-S2020-practical8-solution
+# cs203-S2020-practical8-starter
 
 ## Table of Contents
 
@@ -22,7 +22,7 @@
 
 Designed for use with [GitHub Classroom](https://classroom.github.com/) and
 [GatorGrader](https://github.com/GatorEducator/gatorgrader/), this repository
-contains the solution for a laboratory assignment in a software engineering
+contains the starter for a laboratory assignment in a software engineering
 course class that uses the Python programming language. The Travis CI builds for
 this repository will pass, as evidenced by a green &#x2714; instead of a red
 &#x2717; appearing in the commit logs. An instructor would use this repository
