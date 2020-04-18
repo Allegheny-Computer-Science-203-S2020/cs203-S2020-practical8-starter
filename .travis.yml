@@ -1,0 +1,94 @@
+# use Java and non-root
+# --> note that Python will be installed through
+# pyenv, ensuring that the build uses a version
+# of Python managed specifically for this project
+dist: xenial
+sudo: false
+language: Java
+jdk: oraclejdk9
+
+# configure the build environment
+# --> matrix is for the versions of Python
+# --> global is for the environment variables
+env:
+  # run build and test on multiple versions of Python,
+  # using a recent version of the 3.6 and 3.7 series
+  matrix:
+    - PYENV_VERSION=3.7.6
+    - PYENV_VERSION=3.6.9
+  # ignore the virtualenv that Travis creates
+  # set the root for all Python commands using pyenv
+  # set language variables needed by pipenv
+  global:
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
+    - PYENV_ROOT=$HOME/.travis-pyenv
+    - LANG=en_US.UTF-8
+    - LC_ALL=en_US.UTF-8
+
+# install the dependencies
+before_install:
+  # install mdl for linting
+  # install older version of mdl as
+  # some students reported problems with 0.9.0
+  - gem install mdl -v 0.8.0
+  # download gradle as a zip file
+  - wget https://services.gradle.org/distributions/gradle-4.6-bin.zip
+  - unzip -d $HOME gradle-4.6-bin.zip
+  # delete the downloaded file
+  - rm -rf gradle-4.6-bin.zip
+  # add gradle bin to path at the beginning to ensure it overwrites old gradle
+  - export PATH="$HOME/gradle-4.6/bin:$PATH"
+  # install pyenv using the installer, furnishing a managed version
+  - wget https://github.com/praekeltfoundation/travis-pyenv/releases/latest/download/setup-pyenv.sh
+  - source setup-pyenv.sh
+  # install all of the development dependencies for Python
+  # echo the version numbers and paths to support debugging
+  # note that you can see the output of the "which" commands
+  # by clicking on that line in the Travis CI log
+  - pip install --upgrade pip
+  - pip --version
+  - which pip
+  - pip install --upgrade pipenv
+  - pipenv --version
+  - which pipenv
+  # do not allow Travis to use standard error for debugging purposes
+  - unset _JAVA_OPTIONS
+  # install all the dev dependencies with pipenv
+  # pick the version of Python that was installed through pyenv,
+  # which corresponds to the value set by PYENV_VERSION
+  - pipenv install --dev --skip-lock --python "$PYENV_VERSION"
+
+# cache to improve build speed
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.pyenv_cache
+    - $HOME/.pip-cache/
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+# delete any cached version of GatorGrader and require a fresh installation
+before_script:
+  - rm -rf $HOME/.local/share/gatorgrader
+
+# run checks on a student's Markdown writing through GatorGrader
+# run checks on the README file with mdl and proselint
+# run checks on a student's Python code GatorGrader
+# run checks on a student's Markdown writing through GatorGrader
+# note: "gradle grade" will install GatorGrader and run all checks
+script:
+  # lint the assignment's documentation
+  - mdl README.md
+  # lint the student's reflection
+  - mdl writing/reflection.md
+  # Python: lint and run the program and then the program's checks
+  - pipenv run lint --check
+  - pipenv run test
+  - pipenv run python termfrequency/compute_tf_aspects.py inputs/input.txt
+  # Java: see build.gradle
+  - gradle --version
+  # GatorGrader: see config/gatorgrader.yml
+  - gradle grade -x build
